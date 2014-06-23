@@ -33,7 +33,7 @@ public class MultiColumnListView extends PLA_ListView {
 	@SuppressWarnings("unused")
 	private static final String TAG = "MultiColumnListView";
 
-	private static final int DEFAULT_COLUMN_NUMBER = 2;
+	private static final int DEFAULT_COLUMN_NUMBER = 1;
 
 	private int mColumnNumber = 2;
 	private Column[] mColumns = null;
