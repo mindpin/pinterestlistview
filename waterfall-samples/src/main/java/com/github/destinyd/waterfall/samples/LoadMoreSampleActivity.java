@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -13,7 +14,7 @@ import com.github.destinyd.waterfall.MultiColumnPullToRefreshListView;
 import java.util.Arrays;
 import java.util.Random;
 
-public class PullToRefreshSampleActivity extends Activity {
+public class LoadMoreSampleActivity extends Activity {
 
     private static final String TAG = "PullToRefreshSampleActivity";
 
@@ -34,10 +35,11 @@ public class PullToRefreshSampleActivity extends Activity {
 		setContentView(R.layout.sample_pull_to_refresh_act);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
 		mAdapterView = (MultiColumnPullToRefreshListView) findViewById(R.id.list);
-        mAdapterView.setOnRefreshListener(new MultiColumnPullToRefreshListView.OnRefreshListener() {
+        mAdapterView.setOnLoadMoreListener(new MultiColumnPullToRefreshListView.OnLoadMoreListener() {
             @Override
-            public void onRefresh() {
-                new RefreshTask().execute();
+            public void onLoadMore() {
+                Log.i(TAG, "onLoadMore");
+                new LoadMoreTask().execute();
             }
         });
 	}
@@ -72,7 +74,7 @@ public class PullToRefreshSampleActivity extends Activity {
 		break;
 		case 1002:
 		{
-			Intent intent = new Intent(this, PullToRefreshSampleActivity.class);
+			Intent intent = new Intent(this, LoadMoreSampleActivity.class);
 			startActivity(intent);
 		}
 		break;
@@ -93,12 +95,12 @@ public class PullToRefreshSampleActivity extends Activity {
         mAdapterView.setTextPullToRefresh("下拉刷新");
         mAdapterView.setTextRefreshing("刷新中");
         mAdapterView.setTextReleaseToRefresh("松开刷新");
-        initDatas();
+        addDatas();
     }
 
     int i = 0;
 	private Random mRand = new Random();
-	private void initDatas() {
+	private void addDatas() {
         int j = i+30;
 		for( ; i < j; ++i){
 			//generate 30 random items.
@@ -125,7 +127,7 @@ public class PullToRefreshSampleActivity extends Activity {
         mAdapter = new MySimpleAdapter(this, R.layout.sample_item);
     }
 
-    private class RefreshTask extends AsyncTask<Void, Long, Void> {
+    private class LoadMoreTask extends AsyncTask<Void, Long, Void> {
         @Override
         protected Void doInBackground(Void... requestParams) {
             try {
@@ -138,10 +140,11 @@ public class PullToRefreshSampleActivity extends Activity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            initAdapter();
-            init();
-            mAdapterView.setAdapter(mAdapter);
-            mAdapterView.onRefreshComplete();
+            addDatas();
+            mAdapter.notifyDataSetChanged();
+            mAdapterView.onLoadMoreComplete();
+//            mAdapterView.setAdapter(mAdapter);
+//            mAdapterView.onRefreshComplete();
         }
     }
 

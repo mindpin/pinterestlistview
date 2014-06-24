@@ -37,8 +37,9 @@ public class MainActivity extends ListActivity {
 
     private List<? extends Map<String, ?>> getData() {
         List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
-        addItem(data, "PullToRefreshSampleActivity", PullToRefreshSampleActivity.class);
-        addItem(data, "SampleActivity", SampleActivity.class);
+        addItem(data, "Sample", SampleActivity.class);
+        addItem(data, "Pull To Refresh", PullToRefreshSampleActivity.class);
+        addItem(data, "Load More", LoadMoreSampleActivity.class);
 
         return data;
     }

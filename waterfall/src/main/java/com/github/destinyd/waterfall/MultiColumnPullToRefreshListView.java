@@ -18,6 +18,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.*;
+import com.github.destinyd.waterfall.internal.PLA_AbsListView;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -45,7 +46,7 @@ import java.util.Date;
  * @author Erik Wallentinsen <dev+ptr@erikw.eu>
  * @version 1.0.0
  */
-public class MultiColumnPullToRefreshListView extends MultiColumnListView {
+public class MultiColumnPullToRefreshListView extends MultiColumnListView implements PLA_AbsListView.OnScrollListener {
 
     private static final float PULL_RESISTANCE = 3.0f;
     private static final int BOUNCE_ANIMATION_DURATION = 215;
@@ -344,6 +345,9 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 
         // super.setOnItemClickListener(new PTROnItemClickListener());
         // super.setOnItemLongClickListener(new PTROnItemLongClickListener());
+
+        //初始化 loadmore view
+        initComponent(context);
     }
 
     private void setHeaderPadding(int padding) {
@@ -739,6 +743,90 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
             }
         }
     };
+
+
+    public void initComponent(Context context) {
+        super.setOnScrollListener(this);
+        mInflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // footer
+        mFooterView = (RelativeLayout) mInflater.inflate(
+                R.layout.load_more_footer, this, false);
+		/*
+		 * mLabLoadMore = (TextView) mFooterView
+		 * .findViewById(R.id.load_more_lab_view);
+		 */
+        mProgressBarLoadMore = (ProgressBar) mFooterView
+                .findViewById(R.id.load_more_progressBar);
+
+        addFooterView(mFooterView);
+    }
+
+    protected LayoutInflater mInflater;
+    private OnLoadMoreListener mOnLoadMoreListener;
+    private boolean mIsLoadingMore = false;
+    private RelativeLayout mFooterView;
+    private ProgressBar mProgressBarLoadMore;
+    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
+        mOnLoadMoreListener = onLoadMoreListener;
+    }
+
+    @Override
+//    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        public void onScrollStateChanged(PLA_AbsListView view, int scrollState) {
+//        mCurrentScrollState = scrollState;
+//
+//        if (mCurrentScrollState == SCROLL_STATE_IDLE) {
+//            mBounceHack = false;
+//        }
+    }
+
+
+    @Override
+//    public void onScroll(AbsListView view, int firstVisibleItem,
+    public void onScroll(PLA_AbsListView view, int firstVisibleItem,
+                         int visibleItemCount, int totalItemCount) {
+// if need a list to load more items
+        if (mOnLoadMoreListener != null) {
+
+            if (visibleItemCount == totalItemCount) {
+                mProgressBarLoadMore.setVisibility(View.GONE);
+                // mLabLoadMore.setVisibility(View.GONE);
+                return;
+            }
+
+            boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
+
+            if (!mIsLoadingMore && loadMore && state != State.REFRESHING
+//                    && mCurrentScrollState != SCROLL_STATE_IDLE
+                    ) {
+                mProgressBarLoadMore.setVisibility(View.VISIBLE);
+                // mLabLoadMore.setVisibility(View.VISIBLE);
+                mIsLoadingMore = true;
+                onLoadMore();
+            }
+
+        }
+    }
+
+    public void onLoadMore() {
+        mProgressBarLoadMore.setVisibility(VISIBLE);
+        Log.d(TAG, "onLoadMore");
+        if (mOnLoadMoreListener != null) {
+            mOnLoadMoreListener.onLoadMore();
+        }
+    }
+
+    public interface OnLoadMoreListener {
+        public void onLoadMore();
+    }
+
+    /**
+     * Notify the loading more operation has finished
+     */
+    public void onLoadMoreComplete() {
+        mIsLoadingMore = false;
+    }
 
     // private class PTROnItemClickListener implements OnItemClickListener {
     //
