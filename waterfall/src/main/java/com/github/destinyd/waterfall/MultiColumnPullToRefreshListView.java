@@ -51,6 +51,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
     private static final int BOUNCE_ANIMATION_DURATION = 215;
     private static final int BOUNCE_ANIMATION_DELAY = 20;
     private static final int ROTATE_ARROW_ANIMATION_DURATION = 250;
+    private static final String TAG = "MultiColumnPullToRefreshListView";
 
     // Loading...
     private LoadingThread mLoadingThread = null;
@@ -353,7 +354,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
         header.setLayoutParams(mlp);
     }
 
-    private boolean isPulling = false;
+    private boolean isPulling = true;
 
     private boolean isPull(MotionEvent event) {
         return isPulling;
@@ -413,6 +414,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 
         }
 
+        // refreshing
         if (lockScrollWhileRefreshing
                 && (state == State.REFRESHING || getAnimation() != null
                         && !getAnimation().hasEnded())) {
@@ -472,9 +474,11 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
         return super.onTouchEvent(event);
     }
 
+    // 动画恢复头部隐藏
     private void bounceBackHeader() {
         int yTranslate = state == State.REFRESHING ?
                 header.getHeight() - headerContainer.getHeight() :
+//                header.getHeight() - headerContainer.getTop() :
                 -headerContainer.getHeight() - headerContainer.getTop();
 
         bounceAnimation = new TranslateAnimation(

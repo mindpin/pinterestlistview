@@ -3,26 +3,28 @@ package com.github.destinyd.waterfall.samples;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import com.github.destinyd.waterfall.internal.PLA_AdapterView;
+import com.github.destinyd.waterfall.MultiColumnPullToRefreshListView;
 
 import java.util.Arrays;
 import java.util.Random;
 
 public class PullToRefreshSampleActivity extends Activity {
 
-	private class MySimpleAdapter extends ArrayAdapter<String> {
+    private static final String TAG = "PullToRefreshSampleActivity";
+
+    private class MySimpleAdapter extends ArrayAdapter<String> {
 
 		public MySimpleAdapter(Context context, int layoutRes) {
 			super(context, layoutRes, android.R.id.text1);
 		}
 	}
 
-	private PLA_AdapterView<ListAdapter> mAdapterView = null;
+	private MultiColumnPullToRefreshListView mAdapterView = null;
 	private MySimpleAdapter mAdapter = null;
 
 	@SuppressWarnings("unchecked")
@@ -31,7 +33,13 @@ public class PullToRefreshSampleActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sample_pull_to_refresh_act);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
-		mAdapterView = (PLA_AdapterView<ListAdapter>) findViewById(R.id.list);
+		mAdapterView = (MultiColumnPullToRefreshListView) findViewById(R.id.list);
+        mAdapterView.setOnRefreshListener(new MultiColumnPullToRefreshListView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new RefreshTask().execute();
+            }
+        });
 	}
 
 	@Override
@@ -75,16 +83,17 @@ public class PullToRefreshSampleActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		initAdapter();
+        initAdapterIfNull();
+		init();
 		mAdapterView.setAdapter(mAdapter);
 		//mAdapterView.setAdapter(mAdapter);
 	}
 
+    int i = 0;
 	private Random mRand = new Random();
-	private void initAdapter() {
-		mAdapter = new MySimpleAdapter(this, R.layout.sample_item);
-
-		for( int i = 0; i < 30; ++i){
+	private void init() {
+        int j = i+30;
+		for( ; i < j; ++i){
 			//generate 30 random items.
 
 			StringBuilder builder = new StringBuilder();
@@ -99,5 +108,34 @@ public class PullToRefreshSampleActivity extends Activity {
 		}
 
 	}
+
+    private void initAdapterIfNull() {
+        if(mAdapter == null)
+            initAdapter();
+    }
+
+    private void initAdapter() {
+        mAdapter = new MySimpleAdapter(this, R.layout.sample_item);
+    }
+
+    private class RefreshTask extends AsyncTask<Void, Long, Void> {
+        @Override
+        protected Void doInBackground(Void... requestParams) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            initAdapter();
+            init();
+            mAdapterView.setAdapter(mAdapter);
+            mAdapterView.onRefreshComplete();
+        }
+    }
 
 }//end of class
