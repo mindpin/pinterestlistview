@@ -42,7 +42,7 @@ import java.util.Date;
  * <p/>
  * For more information, visit the project page:
  * https://github.com/erikwt/PullToRefresh-ListView
- * 
+ *
  * @author Erik Wallentinsen <dev+ptr@erikw.eu>
  * @version 1.0.0
  */
@@ -111,7 +111,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
 
     private boolean isHeaderRefreshing = false;
     private boolean isHeaderShowing = false;
-    
+
     public MultiColumnPullToRefreshListView(Context context) {
         super(context);
         init(context, null);
@@ -130,7 +130,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
     /**
      * Activate an OnRefreshListener to get notified on 'pull to refresh'
      * events.
-     * 
+     *
      * @param onRefreshListener The OnRefreshListener to get notified
      */
     public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
@@ -147,7 +147,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
     /**
      * Default is false. When lockScrollWhileRefreshing is set to true, the list
      * cannot scroll when in 'refreshing' mode. It's 'locked' on refreshing.
-     * 
+     *
      * @param lockScrollWhileRefreshing
      */
     public void setLockScrollWhileRefreshing(boolean lockScrollWhileRefreshing) {
@@ -158,7 +158,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
      * Default is false. Show the last-updated date/time in the 'Pull ro
      * Refresh' header. See 'setLastUpdatedDateFormat' to set the date/time
      * formatting.
-     * 
+     *
      * @param showLastUpdatedText
      */
     public void setShowLastUpdatedText(boolean showLastUpdatedText) {
@@ -171,7 +171,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
      * Default: "dd/MM HH:mm". Set the format in which the last-updated
      * date/time is shown. Meaningless if 'showLastUpdatedText == false
      * (default)'. See 'setShowLastUpdatedText'.
-     * 
+     *
      * @param lastUpdatedDateFormat
      */
     public void setLastUpdatedDateFormat(SimpleDateFormat lastUpdatedDateFormat) {
@@ -202,7 +202,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
 
     /**
      * Change the label text on state 'Pull to Refresh'
-     * 
+     *
      * @param pullToRefreshText Text
      */
     public void setTextPullToRefresh(String pullToRefreshText) {
@@ -221,7 +221,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
 
     /**
      * Change the label text on state 'Release to Refresh'
-     * 
+     *
      * @param releaseToRefreshText Text
      */
     public void setTextReleaseToRefresh(String releaseToRefreshText) {
@@ -240,7 +240,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
 
     /**
      * Change the label text on state 'Refreshing'
-     * 
+     *
      * @param refreshingText Text
      */
     public void setTextRefreshing(String refreshingText) {
@@ -358,10 +358,14 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
         header.setLayoutParams(mlp);
     }
 
-    private boolean isPulling = true;
+    private boolean isPulling = false;
 
     private boolean isPull(MotionEvent event) {
         return isPulling;
+    }
+
+    private boolean couldRefresh() {
+        return onRefreshListener != null;
     }
 
     @Override
@@ -379,7 +383,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
 
         if (lockScrollWhileRefreshing
                 && (state == State.REFRESHING || getAnimation() != null
-                        && !getAnimation().hasEnded())) {
+                && !getAnimation().hasEnded())) {
             return true; // consume touch event here..
         }
 
@@ -421,15 +425,17 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
         // refreshing
         if (lockScrollWhileRefreshing
                 && (state == State.REFRESHING || getAnimation() != null
-                        && !getAnimation().hasEnded())) {
+                && !getAnimation().hasEnded())) {
             return true;
         }
 
         switch (event.getAction()) {
 
             case MotionEvent.ACTION_UP:
-                if (isPull(event)
-                        && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)) {
+                if (
+//                        isPull(event)
+                        couldRefresh()
+                                && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)) {
                     switch (state) {
                         case RELEASE_TO_REFRESH:
                             setState(State.REFRESHING);
@@ -445,7 +451,10 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (isPull(event)) {
+                if (
+//                        isPull(event)
+                        couldRefresh()
+                        ) {
                     float y = event.getY();
                     float diff = y - previousY;
                     if (diff > 0)
@@ -752,7 +761,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
         // footer
         mFooterView = (RelativeLayout) mInflater.inflate(
                 R.layout.load_more_footer, this, false);
-		/*
+        /*
 		 * mLabLoadMore = (TextView) mFooterView
 		 * .findViewById(R.id.load_more_lab_view);
 		 */
@@ -767,13 +776,14 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
     private boolean mIsLoadingMore = false;
     private RelativeLayout mFooterView;
     private ProgressBar mProgressBarLoadMore;
+
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
         mOnLoadMoreListener = onLoadMoreListener;
     }
 
     @Override
 //    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        public void onScrollStateChanged(PLA_AbsListView view, int scrollState) {
+    public void onScrollStateChanged(PLA_AbsListView view, int scrollState) {
 //        mCurrentScrollState = scrollState;
 //
 //        if (mCurrentScrollState == SCROLL_STATE_IDLE) {
