@@ -467,16 +467,19 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
                     if (newHeaderPadding != headerPadding && state != State.REFRESHING) {
                         setHeaderPadding(newHeaderPadding);
 
-                        if (state == State.PULL_TO_REFRESH && headerPadding > 0) {
-                            setState(State.RELEASE_TO_REFRESH);
 
-                            image.clearAnimation();
-                            image.startAnimation(flipAnimation);
-                        } else if (state == State.RELEASE_TO_REFRESH && headerPadding < 0) {
-                            setState(State.PULL_TO_REFRESH);
+                        if(hackGetScrollY() < 50) {
+                            if (state == State.PULL_TO_REFRESH && headerPadding > 0) {
+                                setState(State.RELEASE_TO_REFRESH);
 
-                            image.clearAnimation();
-                            image.startAnimation(reverseFlipAnimation);
+                                image.clearAnimation();
+                                image.startAnimation(flipAnimation);
+                            } else if (state == State.RELEASE_TO_REFRESH && headerPadding < 0) {
+                                setState(State.PULL_TO_REFRESH);
+
+                                image.clearAnimation();
+                                image.startAnimation(reverseFlipAnimation);
+                            }
                         }
                     }
                 }
@@ -485,6 +488,11 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
         }
 
         return super.onTouchEvent(event);
+    }
+
+    int hackGetScrollY(){
+        View c = getChildAt(0);
+        return  -c.getTop() + getFirstVisiblePosition() * c.getHeight();
     }
 
     // 动画恢复头部隐藏
@@ -581,21 +589,6 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
                 }
 
                 break;
-        }
-    }
-
-    @Override
-    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        super.onScrollChanged(l, t, oldl, oldt);
-
-        Log.i("Vingle", "hasResetHeader : " + hasResetHeader + ", t : " + t + ", oldt : " + oldt);
-
-        if (!hasResetHeader) {
-            if (measuredHeaderHeight > 0 && state != State.REFRESHING) {
-                setHeaderPadding(-measuredHeaderHeight);
-            }
-
-            hasResetHeader = true;
         }
     }
 
@@ -817,6 +810,21 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
                 onLoadMore();
             }
 
+        }
+    }
+
+    @Override
+    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+        super.onScrollChanged(l, t, oldl, oldt);
+
+        Log.i("Vingle", "hasResetHeader : " + hasResetHeader + ", t : " + t + ", oldt : " + oldt);
+
+        if (!hasResetHeader) {
+            if (measuredHeaderHeight > 0 && state != State.REFRESHING) {
+                setHeaderPadding(-measuredHeaderHeight);
+            }
+
+            hasResetHeader = true;
         }
     }
 

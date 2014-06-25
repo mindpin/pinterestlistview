@@ -17,21 +17,20 @@ public class ComplexSampleActivity extends Activity {
 
     private class MySimpleAdapter extends ArrayAdapter<String> {
 
-		public MySimpleAdapter(Context context, int layoutRes) {
-			super(context, layoutRes, android.R.id.text1);
-		}
-	}
+        public MySimpleAdapter(Context context, int layoutRes) {
+            super(context, layoutRes, android.R.id.text1);
+        }
+    }
 
-	private MultiColumnPullToRefreshListView mAdapterView = null;
-	private MySimpleAdapter mAdapter = null;
+    private MultiColumnPullToRefreshListView mAdapterView = null;
+    private MySimpleAdapter mAdapter = null;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.waterfall);
-		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
-		mAdapterView = (MultiColumnPullToRefreshListView) findViewById(R.id.list);
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.waterfall);
+        mAdapterView = (MultiColumnPullToRefreshListView) findViewById(R.id.list);
         mAdapterView.setOnLoadMoreListener(new MultiColumnPullToRefreshListView.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
@@ -46,16 +45,15 @@ public class ComplexSampleActivity extends Activity {
                 new RefreshTask().execute();
             }
         });
-	}
+    }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
+    @Override
+    protected void onResume() {
+        super.onResume();
         initAdapterIfNull();
         init();
         mAdapterView.setAdapter(mAdapter);
-		//mAdapterView.setAdapter(mAdapter);
-	}
+    }
 
     private void init() {
         mAdapterView.setTextPullToRefresh("下拉刷新");
@@ -65,27 +63,28 @@ public class ComplexSampleActivity extends Activity {
     }
 
     int i = 0;
-	private Random mRand = new Random();
-	private void addDatas() {
-        int j = i+30;
-		for( ; i < j; ++i){
-			//generate 30 random items.
+    private Random mRand = new Random();
 
-			StringBuilder builder = new StringBuilder();
-			builder.append("Hello!![");
-			builder.append(i);
-			builder.append("] ");
+    private void addDatas() {
+        int j = i + 15;
+        for (; i < j; ++i) {
+            //generate 30 random items.
 
-			char[] chars = new char[mRand.nextInt(500)];
-			Arrays.fill(chars, '1');
-			builder.append(chars);
-			mAdapter.add(builder.toString());
-		}
+            StringBuilder builder = new StringBuilder();
+            builder.append("Hello!![");
+            builder.append(i);
+            builder.append("] ");
 
-	}
+            char[] chars = new char[mRand.nextInt(500)];
+            Arrays.fill(chars, '1');
+            builder.append(chars);
+            mAdapter.add(builder.toString());
+        }
+
+    }
 
     private void initAdapterIfNull() {
-        if(mAdapter == null)
+        if (mAdapter == null)
             initAdapter();
     }
 
@@ -109,8 +108,6 @@ public class ComplexSampleActivity extends Activity {
             addDatas();
             mAdapter.notifyDataSetChanged();
             mAdapterView.onLoadMoreComplete();
-//            mAdapterView.setAdapter(mAdapter);
-//            mAdapterView.onRefreshComplete();
         }
     }
 
