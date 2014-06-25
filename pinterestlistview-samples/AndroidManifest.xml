@@ -26,6 +26,7 @@
         <activity android:name=".SampleActivity"/>
         <activity android:name=".LoadMoreSampleActivity"/>
         <activity android:name=".ComplexSampleActivity"/>
+        <activity android:name=".ScrollbarActivity"/>
 
 	</application>
 

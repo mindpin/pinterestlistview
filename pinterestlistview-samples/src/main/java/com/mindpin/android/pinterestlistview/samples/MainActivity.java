@@ -41,6 +41,7 @@ public class MainActivity extends ListActivity {
         addItem(data, "Pull To Refresh", PullToRefreshSampleActivity.class);
         addItem(data, "Load More", LoadMoreSampleActivity.class);
         addItem(data, "Complex", ComplexSampleActivity.class);
+        addItem(data, "Scrollbar", ScrollbarActivity.class);
 
         return data;
     }

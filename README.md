@@ -38,3 +38,20 @@ mAdapterView.onLoadMoreComplete();
 ```
 可隐藏读取更多提示视图
 
+**显示滚动栏**
+显示滚动栏必须给PinterestListView设置```android:scrollbars="vertical"```属性
+
+示例
+```
+    <com.mindpin.android.pinterestlistview.PinterestListView
+            xmlns:waterfall="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            waterfall:plaColumnNumber="2"
+            waterfall:plaLandscapeColumnNumber="3"
+            android:scrollbars="vertical"
+            >
+    </com.mindpin.android.pinterestlistview.PinterestListView>
+```
+表示竖屏时候为2栏（默认为2）、横平时候为3栏（默认为2）、显示竖向滚动栏
