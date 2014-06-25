@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import com.mindpin.android.pinterestlistview.MultiColumnPullToRefreshListView;
+import com.mindpin.android.pinterestlistview.PinterestListView;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -22,7 +22,7 @@ public class ComplexSampleActivity extends Activity {
         }
     }
 
-    private MultiColumnPullToRefreshListView mAdapterView = null;
+    private PinterestListView mAdapterView = null;
     private MySimpleAdapter mAdapter = null;
 
     @SuppressWarnings("unchecked")
@@ -30,15 +30,15 @@ public class ComplexSampleActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waterfall);
-        mAdapterView = (MultiColumnPullToRefreshListView) findViewById(R.id.list);
-        mAdapterView.setOnLoadMoreListener(new MultiColumnPullToRefreshListView.OnLoadMoreListener() {
+        mAdapterView = (PinterestListView) findViewById(R.id.list);
+        mAdapterView.setOnLoadMoreListener(new PinterestListView.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
                 Log.d(TAG, "onLoadMore");
                 new LoadMoreTask().execute();
             }
         });
-        mAdapterView.setOnRefreshListener(new MultiColumnPullToRefreshListView.OnRefreshListener() {
+        mAdapterView.setOnRefreshListener(new PinterestListView.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 Log.d(TAG, "onRefresh");

@@ -46,7 +46,7 @@ import java.util.Date;
  * @author Erik Wallentinsen <dev+ptr@erikw.eu>
  * @version 1.0.0
  */
-public class MultiColumnPullToRefreshListView extends MultiColumnListView implements PLA_AbsListView.OnScrollListener {
+public class PinterestListView extends MultiColumnListView implements PLA_AbsListView.OnScrollListener {
 
     private static final float PULL_RESISTANCE = 3.0f;
     private static final int BOUNCE_ANIMATION_DURATION = 215;
@@ -112,17 +112,17 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
     private boolean isHeaderRefreshing = false;
     private boolean isHeaderShowing = false;
 
-    public MultiColumnPullToRefreshListView(Context context) {
+    public PinterestListView(Context context) {
         super(context);
         init(context, null);
     }
 
-    public MultiColumnPullToRefreshListView(Context context, AttributeSet attrs) {
+    public PinterestListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public MultiColumnPullToRefreshListView(Context context, AttributeSet attrs, int defStyle) {
+    public PinterestListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs);
     }
