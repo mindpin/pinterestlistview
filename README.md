@@ -15,8 +15,8 @@ mvn clean install
 
 ```
 <dependency>
-  <groupId>com.github.destinyd.waterfall</groupId>
-  <artifactId>waterfall</artifactId>
+  <groupId>com.mindpin.android.pinterestlistview</groupId>
+  <artifactId>pinterestlistview</artifactId>
   <version>0.1.0</version>
   <type>apklib</type>
 </dependency>

@@ -4,15 +4,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.destinyd.waterfall</groupId>
-	<artifactId>waterfall-parent</artifactId>
+	<groupId>com.mindpin.android.pinterestlistview</groupId>
+	<artifactId>pinterestlistview-parent</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>waterfall - Parent</name>
+	<name>pinterestlistview - Parent</name>
 
 	<modules>
-        <module>waterfall</module>
-		<module>waterfall-samples</module>
+        <module>pinterestlistview</module>
+		<module>pinterestlistview-samples</module>
 	</modules>
 
     <properties>
