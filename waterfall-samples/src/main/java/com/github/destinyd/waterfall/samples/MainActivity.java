@@ -40,6 +40,7 @@ public class MainActivity extends ListActivity {
         addItem(data, "Sample", SampleActivity.class);
         addItem(data, "Pull To Refresh", PullToRefreshSampleActivity.class);
         addItem(data, "Load More", LoadMoreSampleActivity.class);
+        addItem(data, "Complex", ComplexSampleActivity.class);
 
         return data;
     }

@@ -31,7 +31,7 @@ public class PullToRefreshSampleActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.sample_pull_to_refresh_act);
+		setContentView(R.layout.waterfall);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
 		mAdapterView = (MultiColumnPullToRefreshListView) findViewById(R.id.list);
         mAdapterView.setOnRefreshListener(new MultiColumnPullToRefreshListView.OnRefreshListener() {

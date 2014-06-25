@@ -2,19 +2,16 @@ package com.github.destinyd.waterfall.samples;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import com.github.destinyd.waterfall.MultiColumnPullToRefreshListView;
 
 import java.util.Arrays;
 import java.util.Random;
 
-public class LoadMoreSampleActivity extends Activity {
+public class ComplexSampleActivity extends Activity {
 
     private static final String TAG = "PullToRefreshSampleActivity";
 
@@ -38,48 +35,17 @@ public class LoadMoreSampleActivity extends Activity {
         mAdapterView.setOnLoadMoreListener(new MultiColumnPullToRefreshListView.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                Log.i(TAG, "onLoadMore");
+                Log.d(TAG, "onLoadMore");
                 new LoadMoreTask().execute();
             }
         });
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, 1001, 0, "Load More Contents");
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		switch(item.getItemId()){
-		case 1001:
-		{
-			int startCount = mAdapter.getCount();
-			for( int i = 0; i < 100; ++i){
-				//generate 100 random items.
-
-				StringBuilder builder = new StringBuilder();
-				builder.append("Hello!![");
-				builder.append(startCount + i);
-				builder.append("] ");
-
-				char[] chars = new char[mRand.nextInt(100)];
-				Arrays.fill(chars, '1');
-				builder.append(chars);
-				mAdapter.add(builder.toString());
-			}
-		}
-		break;
-		case 1002:
-		{
-			Intent intent = new Intent(this, LoadMoreSampleActivity.class);
-			startActivity(intent);
-		}
-		break;
-		}
-		return true;
+        mAdapterView.setOnRefreshListener(new MultiColumnPullToRefreshListView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.d(TAG, "onRefresh");
+                new RefreshTask().execute();
+            }
+        });
 	}
 
 	@Override
@@ -145,6 +111,26 @@ public class LoadMoreSampleActivity extends Activity {
             mAdapterView.onLoadMoreComplete();
 //            mAdapterView.setAdapter(mAdapter);
 //            mAdapterView.onRefreshComplete();
+        }
+    }
+
+    private class RefreshTask extends AsyncTask<Void, Long, Void> {
+        @Override
+        protected Void doInBackground(Void... requestParams) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mAdapter.clear();
+            init();
+            mAdapter.notifyDataSetChanged();
+            mAdapterView.onRefreshComplete();
         }
     }
 

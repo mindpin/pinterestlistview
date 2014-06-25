@@ -25,6 +25,7 @@
         <activity android:name=".PullToRefreshSampleActivity"/>
         <activity android:name=".SampleActivity"/>
         <activity android:name=".LoadMoreSampleActivity"/>
+        <activity android:name=".ComplexSampleActivity"/>
 
 	</application>
 

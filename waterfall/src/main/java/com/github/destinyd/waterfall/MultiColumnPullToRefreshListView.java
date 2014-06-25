@@ -576,6 +576,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView implem
                 if (onRefreshListener == null) {
                     setState(State.PULL_TO_REFRESH);
                 } else {
+                    Log.d(TAG, "onRefresh");
                     onRefreshListener.onRefresh();
                 }
 
