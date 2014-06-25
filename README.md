@@ -1,7 +1,7 @@
 Android pinterestlistview
 ============================
 瀑布流布局组件
-仿Pinterest带刷新，下拉读取更多的瀑布流组件，可以设置横屏、竖屏列数，可以设置左右缩进。
+仿Pinterest带下拉刷新、无限增量加载新内容的瀑布流组件，可以设置横屏、竖屏列数，可以设置左右缩进。
 
 ###如何引用此组件：
 安装
@@ -21,3 +21,20 @@ mvn clean install
   <type>apklib</type>
 </dependency>
 ```
+
+### 使用说明
+下拉刷新需要**setOnRefreshListener**才会出现
+```
+mAdapterView.onRefreshComplete();
+```
+可隐藏刷新提示视图
+
+
+
+增量加载需要**setOnLoadMoreListener**才会出现
+
+```
+mAdapterView.onLoadMoreComplete();
+```
+可隐藏读取更多提示视图
+
