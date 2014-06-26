@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+
+    <com.mindpin.android.pinterestlistview.PinterestListView
+            xmlns:waterfall="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            waterfall:plaColumnNumber="1"
+            waterfall:plaLandscapeColumnNumber="2"
+            />
+
+</merge>

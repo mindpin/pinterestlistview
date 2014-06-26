@@ -42,6 +42,7 @@ public class MainActivity extends ListActivity {
         addItem(data, "Load More", LoadMoreSampleActivity.class);
         addItem(data, "Complex", ComplexSampleActivity.class);
         addItem(data, "Scrollbar", ScrollbarActivity.class);
+        addItem(data, "Load More on Top", LoadMoreOnTopSampleActivity.class);
 
         return data;
     }
