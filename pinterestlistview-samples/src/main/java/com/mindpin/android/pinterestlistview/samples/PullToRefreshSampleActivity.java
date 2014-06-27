@@ -43,44 +43,6 @@ public class PullToRefreshSampleActivity extends Activity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, 1001, 0, "Load More Contents");
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		switch(item.getItemId()){
-		case 1001:
-		{
-			int startCount = mAdapter.getCount();
-			for( int i = 0; i < 100; ++i){
-				//generate 100 random items.
-
-				StringBuilder builder = new StringBuilder();
-				builder.append("Hello!![");
-				builder.append(startCount + i);
-				builder.append("] ");
-
-				char[] chars = new char[mRand.nextInt(100)];
-				Arrays.fill(chars, '1');
-				builder.append(chars);
-				mAdapter.add(builder.toString());
-			}
-		}
-		break;
-		case 1002:
-		{
-			Intent intent = new Intent(this, PullToRefreshSampleActivity.class);
-			startActivity(intent);
-		}
-		break;
-		}
-		return true;
-	}
-
-	@Override
 	protected void onResume() {
 		super.onResume();
         initAdapterIfNull();
