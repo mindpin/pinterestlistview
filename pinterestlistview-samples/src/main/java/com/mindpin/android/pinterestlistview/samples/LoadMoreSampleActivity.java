@@ -2,12 +2,9 @@ package com.mindpin.android.pinterestlistview.samples;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import com.mindpin.android.pinterestlistview.PinterestListView;
 
@@ -35,10 +32,10 @@ public class LoadMoreSampleActivity extends Activity {
 		setContentView(R.layout.waterfall);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
 		mAdapterView = (PinterestListView) findViewById(R.id.list);
-        mAdapterView.setOnLoadMoreListener(new PinterestListView.OnLoadMoreListener() {
+        mAdapterView.set_on_load_more_listener(new PinterestListView.OnLoadMoreListener() {
             @Override
-            public void onLoadMore() {
-                Log.i(TAG, "onLoadMore");
+            public void on_load_more() {
+                Log.i(TAG, "on_load_more");
                 new LoadMoreTask().execute();
             }
         });
@@ -54,9 +51,9 @@ public class LoadMoreSampleActivity extends Activity {
 	}
 
     private void init() {
-        mAdapterView.setTextPullToRefresh("下拉刷新");
-        mAdapterView.setTextRefreshing("刷新中");
-        mAdapterView.setTextReleaseToRefresh("松开刷新");
+        mAdapterView.set_text_pull_to_refresh("下拉刷新");
+        mAdapterView.set_text_refreshing("刷新中");
+        mAdapterView.set_text_release_to_refresh("松开刷新");
         addDatas();
     }
 
@@ -104,9 +101,9 @@ public class LoadMoreSampleActivity extends Activity {
         protected void onPostExecute(Void aVoid) {
             addDatas();
             mAdapter.notifyDataSetChanged();
-            mAdapterView.onLoadMoreComplete();
+            mAdapterView.on_load_more_complete();
 //            mAdapterView.setAdapter(mAdapter);
-//            mAdapterView.onRefreshComplete();
+//            mAdapterView.on_refresh_complete();
         }
     }
 

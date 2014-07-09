@@ -32,8 +32,8 @@ import java.util.Date;
  * android.widget.ListView class.
  * <p/>
  * Users of this class should implement OnRefreshListener and call
- * setOnRefreshListener(..) to get notified on refresh events. The using class
- * should call onRefreshComplete() when refreshing is finished.
+ * set_on_refresh_listener(..) to get notified on refresh events. The using class
+ * should call on_refresh_complete() when refreshing is finished.
  * <p/>
  * The using class can call setRefreshing() to set the state explicitly to
  * refreshing. This is useful when you want to show the spinner and 'Refreshing'
@@ -48,40 +48,51 @@ import java.util.Date;
  */
 public class PinterestListView extends MultiColumnListView implements PLA_AbsListView.OnScrollListener {
 
-    private static final float PULL_RESISTANCE = 3.0f;
-    private static final int BOUNCE_ANIMATION_DURATION = 215;
-    private static final int BOUNCE_ANIMATION_DELAY = 20;
-    private static final int ROTATE_ARROW_ANIMATION_DURATION = 250;
-    private static final String TAG = "MultiColumnPullToRefreshListView";
-
-    // Loading...
-    private LoadingThread mLoadingThread = null;
     final static int LOADINGBUFFER = 400;
     final static int LOADINGZERO = 100;
     final static int LOADINGONE = 101;
     final static int LOADINGTWO = 102;
     final static int LOADINGTHREE = 103;
+    private static Handler mLoadingHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
 
-    private static enum State {
-        PULL_TO_REFRESH,
-        RELEASE_TO_REFRESH,
-        REFRESHING
-    }
+            @SuppressWarnings("unchecked")
+            TextView tv = ((WeakReference<TextView>) msg.obj).get();
+            if (tv == null)
+                return;
 
-    /**
-     * Interface to implement when you want to get notified of 'pull to refresh'
-     * events. Call setOnRefreshListener(..) to activate an OnRefreshListener.
-     */
-    public interface OnRefreshListener {
+            switch (msg.what) {
+                case LOADINGZERO:
+                    tv.setText("Loading");
+                    break;
 
-        /**
-         * Method to be called when a refresh is requested
-         */
-        public void onRefresh();
-    }
+                case LOADINGONE:
+                    tv.setText("Loading.");
+                    break;
 
+                case LOADINGTWO:
+                    tv.setText("Loading..");
+                    break;
+
+                case LOADINGTHREE:
+                    tv.setText("Loading...");
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
+    private static final float PULL_RESISTANCE = 3.0f;
+    private static final int BOUNCE_ANIMATION_DURATION = 215;
+    private static final int BOUNCE_ANIMATION_DELAY = 20;
+    private static final int ROTATE_ARROW_ANIMATION_DURATION = 250;
+    private static final String TAG = "MultiColumnPullToRefreshListView";
     private static int measuredHeaderHeight;
-
+    protected LayoutInflater mInflater;
+    // Loading...
+    private LoadingThread mLoadingThread = null;
     private boolean scrollbarEnabled;
     private boolean bounceBackHeader;
     private boolean lockScrollWhileRefreshing;
@@ -111,6 +122,11 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
 
     private boolean isHeaderRefreshing = false;
     private boolean isHeaderShowing = false;
+    private boolean isPulling = false;
+    private OnLoadMoreListener mOnLoadMoreListener;
+    private boolean mIsLoadingMore = false;
+    private RelativeLayout mFooterView;
+    private ProgressBar mProgressBarLoadMore;
 
     public PinterestListView(Context context) {
         super(context);
@@ -127,13 +143,22 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
         init(context, attrs);
     }
 
+    public static float getDimensionDpSize(int id, Context context, AttributeSet attrs) {
+        TypedArray typedArray = context
+                .obtainStyledAttributes(attrs, R.styleable.PullToRefreshView);
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float dp = typedArray.getDimension(id, -1) / (metrics.densityDpi / 160f);
+        return dp;
+    }
+
     /**
      * Activate an OnRefreshListener to get notified on 'pull to refresh'
      * events.
      *
      * @param onRefreshListener The OnRefreshListener to get notified
      */
-    public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
+    public void set_on_refresh_listener(OnRefreshListener onRefreshListener) {
         this.onRefreshListener = onRefreshListener;
     }
 
@@ -194,7 +219,7 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
      * Set the state back to 'pull to refresh'. Call this method when refreshing
      * the data is finished.
      */
-    public void onRefreshComplete() {
+    public void on_refresh_complete() {
         state = State.PULL_TO_REFRESH;
         resetHeader();
         lastUpdated = System.currentTimeMillis();
@@ -205,7 +230,7 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
      *
      * @param pullToRefreshText Text
      */
-    public void setTextPullToRefresh(String pullToRefreshText) {
+    public void set_text_pull_to_refresh(String pullToRefreshText) {
         this.pullToRefreshText = pullToRefreshText;
         if (state == State.PULL_TO_REFRESH) {
             text.setText(pullToRefreshText);
@@ -224,7 +249,7 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
      *
      * @param releaseToRefreshText Text
      */
-    public void setTextReleaseToRefresh(String releaseToRefreshText) {
+    public void set_text_release_to_refresh(String releaseToRefreshText) {
         this.releaseToRefreshText = releaseToRefreshText;
         if (state == State.RELEASE_TO_REFRESH) {
             text.setText(releaseToRefreshText);
@@ -243,7 +268,7 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
      *
      * @param refreshingText Text
      */
-    public void setTextRefreshing(String refreshingText) {
+    public void set_text_refreshing(String refreshingText) {
         this.refreshingText = refreshingText;
         if (state == State.REFRESHING) {
             text.setText(refreshingText);
@@ -255,13 +280,9 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
         }
     }
 
-    public static float getDimensionDpSize(int id, Context context, AttributeSet attrs) {
-        TypedArray typedArray = context
-                .obtainStyledAttributes(attrs, R.styleable.PullToRefreshView);
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = typedArray.getDimension(id, -1) / (metrics.densityDpi / 160f);
-        return dp;
+    // for requirement
+    public void set_adapter(ListAdapter adapter){
+        setAdapter(adapter);
     }
 
     private void init(Context context, AttributeSet attrs) {
@@ -357,8 +378,6 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
         mlp.setMargins(0, Math.round(padding), 0, 0);
         header.setLayoutParams(mlp);
     }
-
-    private boolean isPulling = false;
 
     private boolean isPull(MotionEvent event) {
         return isPulling;
@@ -468,7 +487,7 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
                         setHeaderPadding(newHeaderPadding);
 
 
-                        if(hackGetScrollY() < 50) {
+                        if (hackGetScrollY() < 50) {
                             if (state == State.PULL_TO_REFRESH && headerPadding > 0) {
                                 setState(State.RELEASE_TO_REFRESH);
 
@@ -490,9 +509,9 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
         return super.onTouchEvent(event);
     }
 
-    int hackGetScrollY(){
+    int hackGetScrollY() {
         View c = getChildAt(0);
-        return  -c.getTop() + getFirstVisiblePosition() * c.getHeight();
+        return -c.getTop() + getFirstVisiblePosition() * c.getHeight();
     }
 
     // 动画恢复头部隐藏
@@ -531,6 +550,10 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
             bounceBackHeader();
         }
     }
+
+    // //////////////////////////////////////////////////////////////////
+    // Loading Thread & Handler */
+    // //////////////////////////////////////////////////////////////////
 
     private void setUiRefreshing() {
         spinner.setVisibility(View.GONE);
@@ -584,12 +607,123 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
                 if (onRefreshListener == null) {
                     setState(State.PULL_TO_REFRESH);
                 } else {
-                    Log.d(TAG, "onRefresh");
-                    onRefreshListener.onRefresh();
+//                    Log.d(TAG, "on_refresh");
+                    onRefreshListener.on_refresh();
                 }
 
                 break;
         }
+    }
+
+    public void initComponent(Context context) {
+        super.setOnScrollListener(this);
+        mInflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // footer
+        mFooterView = (RelativeLayout) mInflater.inflate(
+                R.layout.load_more_footer, this, false);
+        /*
+         * mLabLoadMore = (TextView) mFooterView
+		 * .findViewById(R.id.load_more_lab_view);
+		 */
+        mProgressBarLoadMore = (ProgressBar) mFooterView
+                .findViewById(R.id.load_more_progressBar);
+
+        addFooterView(mFooterView);
+    }
+
+    public void set_on_load_more_listener(OnLoadMoreListener onLoadMoreListener) {
+        mOnLoadMoreListener = onLoadMoreListener;
+    }
+
+    @Override
+//    public void onScrollStateChanged(AbsListView view, int scrollState) {
+    public void onScrollStateChanged(PLA_AbsListView view, int scrollState) {
+//        mCurrentScrollState = scrollState;
+//
+//        if (mCurrentScrollState == SCROLL_STATE_IDLE) {
+//            mBounceHack = false;
+//        }
+    }
+
+    @Override
+//    public void onScroll(AbsListView view, int firstVisibleItem,
+    public void onScroll(PLA_AbsListView view, int firstVisibleItem,
+                         int visibleItemCount, int totalItemCount) {
+// if need a list to load more items
+        if (mOnLoadMoreListener != null) {
+
+            if (visibleItemCount == totalItemCount) {
+                mProgressBarLoadMore.setVisibility(View.GONE);
+                // mLabLoadMore.setVisibility(View.GONE);
+                return;
+            }
+
+            boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
+
+            if (!mIsLoadingMore && loadMore && state != State.REFRESHING
+//                    && mCurrentScrollState != SCROLL_STATE_IDLE
+                    ) {
+                mProgressBarLoadMore.setVisibility(View.VISIBLE);
+                // mLabLoadMore.setVisibility(View.VISIBLE);
+                mIsLoadingMore = true;
+                onLoadMore();
+            }
+
+        }
+    }
+
+    @Override
+    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+        super.onScrollChanged(l, t, oldl, oldt);
+
+        Log.i("Vingle", "hasResetHeader : " + hasResetHeader + ", t : " + t + ", oldt : " + oldt);
+
+        if (!hasResetHeader) {
+            if (measuredHeaderHeight > 0 && state != State.REFRESHING) {
+                setHeaderPadding(-measuredHeaderHeight);
+            }
+
+            hasResetHeader = true;
+        }
+    }
+
+    public void onLoadMore() {
+        mProgressBarLoadMore.setVisibility(VISIBLE);
+//        Log.d(TAG, "on_load_more");
+        if (mOnLoadMoreListener != null) {
+            mOnLoadMoreListener.on_load_more();
+        }
+    }
+
+    /**
+     * Notify the loading more operation has finished
+     */
+    public void on_load_more_complete() {
+        mIsLoadingMore = false;
+    }
+
+    private static enum State {
+        PULL_TO_REFRESH,
+        RELEASE_TO_REFRESH,
+        REFRESHING
+    }
+
+
+    /**
+     * Interface to implement when you want to get notified of 'pull to refresh'
+     * events. Call set_on_refresh_listener(..) to activate an OnRefreshListener.
+     */
+    public interface OnRefreshListener {
+
+        /**
+         * Method to be called when a refresh is requested
+         */
+        public void on_refresh();
+    }
+
+    public interface OnLoadMoreListener {
+        public void on_load_more();
     }
 
     private class HeaderAnimationListener implements AnimationListener {
@@ -669,10 +803,6 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
         }
     }
 
-    // //////////////////////////////////////////////////////////////////
-    // Loading Thread & Handler */
-    // //////////////////////////////////////////////////////////////////
-
     private class LoadingThread extends Thread {
         Handler mHandler;
 
@@ -713,138 +843,6 @@ public class PinterestListView extends MultiColumnListView implements PLA_AbsLis
                 // do nothing.
             }
         }
-    }
-
-    private static Handler mLoadingHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-
-            @SuppressWarnings("unchecked")
-            TextView tv = ((WeakReference<TextView>) msg.obj).get();
-            if (tv == null)
-                return;
-
-            switch (msg.what) {
-                case LOADINGZERO:
-                    tv.setText("Loading");
-                    break;
-
-                case LOADINGONE:
-                    tv.setText("Loading.");
-                    break;
-
-                case LOADINGTWO:
-                    tv.setText("Loading..");
-                    break;
-
-                case LOADINGTHREE:
-                    tv.setText("Loading...");
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    };
-
-
-    public void initComponent(Context context) {
-        super.setOnScrollListener(this);
-        mInflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        // footer
-        mFooterView = (RelativeLayout) mInflater.inflate(
-                R.layout.load_more_footer, this, false);
-        /*
-		 * mLabLoadMore = (TextView) mFooterView
-		 * .findViewById(R.id.load_more_lab_view);
-		 */
-        mProgressBarLoadMore = (ProgressBar) mFooterView
-                .findViewById(R.id.load_more_progressBar);
-
-        addFooterView(mFooterView);
-    }
-
-    protected LayoutInflater mInflater;
-    private OnLoadMoreListener mOnLoadMoreListener;
-    private boolean mIsLoadingMore = false;
-    private RelativeLayout mFooterView;
-    private ProgressBar mProgressBarLoadMore;
-
-    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
-        mOnLoadMoreListener = onLoadMoreListener;
-    }
-
-    @Override
-//    public void onScrollStateChanged(AbsListView view, int scrollState) {
-    public void onScrollStateChanged(PLA_AbsListView view, int scrollState) {
-//        mCurrentScrollState = scrollState;
-//
-//        if (mCurrentScrollState == SCROLL_STATE_IDLE) {
-//            mBounceHack = false;
-//        }
-    }
-
-
-    @Override
-//    public void onScroll(AbsListView view, int firstVisibleItem,
-    public void onScroll(PLA_AbsListView view, int firstVisibleItem,
-                         int visibleItemCount, int totalItemCount) {
-// if need a list to load more items
-        if (mOnLoadMoreListener != null) {
-
-            if (visibleItemCount == totalItemCount) {
-                mProgressBarLoadMore.setVisibility(View.GONE);
-                // mLabLoadMore.setVisibility(View.GONE);
-                return;
-            }
-
-            boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
-
-            if (!mIsLoadingMore && loadMore && state != State.REFRESHING
-//                    && mCurrentScrollState != SCROLL_STATE_IDLE
-                    ) {
-                mProgressBarLoadMore.setVisibility(View.VISIBLE);
-                // mLabLoadMore.setVisibility(View.VISIBLE);
-                mIsLoadingMore = true;
-                onLoadMore();
-            }
-
-        }
-    }
-
-    @Override
-    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        super.onScrollChanged(l, t, oldl, oldt);
-
-        Log.i("Vingle", "hasResetHeader : " + hasResetHeader + ", t : " + t + ", oldt : " + oldt);
-
-        if (!hasResetHeader) {
-            if (measuredHeaderHeight > 0 && state != State.REFRESHING) {
-                setHeaderPadding(-measuredHeaderHeight);
-            }
-
-            hasResetHeader = true;
-        }
-    }
-
-    public void onLoadMore() {
-        mProgressBarLoadMore.setVisibility(VISIBLE);
-        Log.d(TAG, "onLoadMore");
-        if (mOnLoadMoreListener != null) {
-            mOnLoadMoreListener.onLoadMore();
-        }
-    }
-
-    public interface OnLoadMoreListener {
-        public void onLoadMore();
-    }
-
-    /**
-     * Notify the loading more operation has finished
-     */
-    public void onLoadMoreComplete() {
-        mIsLoadingMore = false;
     }
 
     // private class PTROnItemClickListener implements OnItemClickListener {

@@ -41,9 +41,9 @@ public class LoadMoreOnTopSampleActivity extends Activity {
 		setContentView(R.layout.loadmore_on_top);
         strings = new ArrayList<String>();
 		mAdapterView = (PinterestListView) findViewById(R.id.list);
-        mAdapterView.setOnRefreshListener(new PinterestListView.OnRefreshListener() {
+        mAdapterView.set_on_refresh_listener(new PinterestListView.OnRefreshListener() {
             @Override
-            public void onRefresh() {
+            public void on_refresh() {
                 new LoadMoreOnTopTask().execute();
             }
         });
@@ -58,9 +58,9 @@ public class LoadMoreOnTopSampleActivity extends Activity {
 	}
 
     private void init() {
-        mAdapterView.setTextPullToRefresh("下拉读取最新");
-        mAdapterView.setTextRefreshing("读取中");
-        mAdapterView.setTextReleaseToRefresh("放手读取最新");
+        mAdapterView.set_text_pull_to_refresh("下拉读取最新");
+        mAdapterView.set_text_refreshing("读取中");
+        mAdapterView.set_text_release_to_refresh("放手读取最新");
         initAdapter();
         initDatas(defaultFrom, defaultTo);
         datasToAdapter();
@@ -137,7 +137,7 @@ public class LoadMoreOnTopSampleActivity extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             add_to_top();
-            mAdapterView.onRefreshComplete();
+            mAdapterView.on_refresh_complete();
         }
     }
 

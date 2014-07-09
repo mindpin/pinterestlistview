@@ -31,17 +31,17 @@ public class ComplexSampleActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waterfall);
         mAdapterView = (PinterestListView) findViewById(R.id.list);
-        mAdapterView.setOnLoadMoreListener(new PinterestListView.OnLoadMoreListener() {
+        mAdapterView.set_on_load_more_listener(new PinterestListView.OnLoadMoreListener() {
             @Override
-            public void onLoadMore() {
-                Log.d(TAG, "onLoadMore");
+            public void on_load_more() {
+                Log.d(TAG, "on_load_more");
                 new LoadMoreTask().execute();
             }
         });
-        mAdapterView.setOnRefreshListener(new PinterestListView.OnRefreshListener() {
+        mAdapterView.set_on_refresh_listener(new PinterestListView.OnRefreshListener() {
             @Override
-            public void onRefresh() {
-                Log.d(TAG, "onRefresh");
+            public void on_refresh() {
+                Log.d(TAG, "on_refresh");
                 new RefreshTask().execute();
             }
         });
@@ -56,9 +56,9 @@ public class ComplexSampleActivity extends Activity {
     }
 
     private void init() {
-        mAdapterView.setTextPullToRefresh("下拉刷新");
-        mAdapterView.setTextRefreshing("刷新中");
-        mAdapterView.setTextReleaseToRefresh("松开刷新");
+        mAdapterView.set_text_pull_to_refresh("下拉刷新");
+        mAdapterView.set_text_refreshing("刷新中");
+        mAdapterView.set_text_release_to_refresh("松开刷新");
         addDatas();
     }
 
@@ -107,7 +107,7 @@ public class ComplexSampleActivity extends Activity {
         protected void onPostExecute(Void aVoid) {
             addDatas();
             mAdapter.notifyDataSetChanged();
-            mAdapterView.onLoadMoreComplete();
+            mAdapterView.on_load_more_complete();
         }
     }
 
@@ -127,7 +127,7 @@ public class ComplexSampleActivity extends Activity {
             mAdapter.clear();
             init();
             mAdapter.notifyDataSetChanged();
-            mAdapterView.onRefreshComplete();
+            mAdapterView.on_refresh_complete();
         }
     }
 
